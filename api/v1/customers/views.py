@@ -66,7 +66,7 @@ def create_customer(request):
             mobile_number=serialized.data.get("mobile_number"),
             address=serialized.data.get("address"),
             job=serialized.data.get("job"),
-            image=request.data.get("image"),
+            image=request.FILES.get("image"),
             blood_group=serialized.data.get("blood_group"),
         )
 
@@ -75,9 +75,6 @@ def create_customer(request):
             customer.house = house
             
             customer.save()
-
-        # if serialized.data.get("image") != None:
-        #     customer.image = serialized.data.get("image")
 
 
         response_data = {

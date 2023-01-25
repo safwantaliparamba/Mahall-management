@@ -14,6 +14,6 @@ class CreateCustomerSerializer(serializers.Serializer):
     age = serializers.IntegerField()
     mobile_number = serializers.IntegerField()
     job = serializers.CharField(max_length=128)
-    # image = serializers.ImageField(required=False)
+    image = serializers.ImageField(required=False)
     blood_group = serializers.CharField(max_length=30)
     house_id = serializers.UUIDField(required=False)

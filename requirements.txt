@@ -5,6 +5,7 @@ charset-normalizer==2.1.1
 cryptography==38.0.4
 Django==4.1.4
 django-cors-headers==3.13.0
+django-environ==0.9.0
 django-mail-queue==3.2.5
 django-restframework==0.0.1
 djangorestframework==3.14.0

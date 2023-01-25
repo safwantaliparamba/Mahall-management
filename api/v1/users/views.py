@@ -27,44 +27,55 @@ def admin_login(request):
             is_admin = user.is_admin
 
             if is_admin:
-                protocol = "http://"
 
-                if request.is_secure():
-                    protocol = "https://"
+                if user.check_password(serializer.data.get('password')):
+                    protocol = "http://"
 
-                host = request.get_host()
-                headers = {
-                    "Content-Type": "application/json"
-                }
-                url = protocol + host + "/api/v1/users/auth/login/"
-                
-                data = {
-                    "username": user.username,
-                    "password": serializer.data.get('password'),
-                }
+                    if request.is_secure():
+                        protocol = "https://"
 
-                response = requests.post(url, headers=headers, data=json.dumps(data))
-
-                if response.status_code == 200:
-                    response_data = {
-                        "statusCode":6000,
-                        "data":{
-                            "title": "Success",
-                            "message":"Successfully logged in",
-                            "username": user.username,
-                            "access":response.json()["access"],
-                            "refresh":response.json()["refresh"],
-                        }
+                    host = request.get_host()
+                    headers = {
+                        "Content-Type": "application/json"
                     }
+                    url = protocol + host + "/api/v1/users/auth/login/"
+                    
+                    data = {
+                        "username": user.username,
+                        "password": serializer.data.get('password'),
+                    }
+
+                    response = requests.post(url, headers=headers, data=json.dumps(data))
+
+                    if response.status_code == 200:
+                        response_data = {
+                            "statusCode":6000,
+                            "data":{
+                                "title": "Success",
+                                "message":"Successfully logged in",
+                                "username": user.username,
+                                "access":response.json()["access"],
+                                "refresh":response.json()["refresh"],
+                            }
+                        }
+
+                    else:
+                        response_data = {
+                            "statusCode": 6001,
+                            "data":{
+                                "title": "Error",
+                                "message": "Something went wrong"
+                            }
+                        }      
 
                 else:
                     response_data = {
-                        "statusCode": 6001,
+                        "statusCode":6001,
                         "data":{
-                            "title": "Error",
-                            "message": "Something went wrong"
+                            "title": "Validation error",
+                            "message":"Given password is incorrect"
                         }
-                    }      
+                    }
 
             else:
                 response_data = {
