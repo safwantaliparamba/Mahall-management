@@ -1,7 +1,9 @@
 import requests
 import json
 
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from django.contrib.auth.models import Group
+
+from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,18 +15,20 @@ from general.functions import generate_unique_id, random_password
 
 from api.v1.users.serializers import LoginSerializer, CreateAdminSerializer, ResetPasswordSerializer
 from api.v1.general.functions import generate_serializer_errors, send_email
+from api.v1.general.http import HttpRequest
 
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def admin_login(request):
+def admin_login(request:HttpRequest):
     serializer = LoginSerializer(data=request.data)
 
     if serializer.is_valid():
 
         if User.objects.filter(username=serializer.data.get('username'), is_deleted=False).exists():
             user = User.objects.filter(username=serializer.data.get('username'), is_deleted=False).latest('date_joined')
-            is_admin = user.is_admin
+            # is_admin = Group.objects.filter(user_set=user).exists()
+            is_admin = user.groups.filter(name="chief").exists()
 
             if is_admin:
 
@@ -109,7 +113,7 @@ def admin_login(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def create_admin(request):
+def create_admin(request:HttpRequest):
     serializer = CreateAdminSerializer(data=request.data)
 
     if serializer.is_valid():
@@ -187,8 +191,7 @@ def create_admin(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])
-def reset_password(request):
+def reset_password(request:HttpRequest):
     serializer = ResetPasswordSerializer(data=request.data)
 
     if serializer.is_valid():
