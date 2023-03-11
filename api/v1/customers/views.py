@@ -2,8 +2,7 @@
 import json
 import base64
 # from django.core.paginator import Paginator,EmptyPage, PageNotAnInteger
-from django.core import serializers
-from django.core.files.base import ContentFile
+from django.db.models import Q
 # restframeworks imports 
 from rest_framework import status
 from rest_framework.response import Response
@@ -27,6 +26,10 @@ def get_customers(request:HttpRequest):
     if (customers:=Customer.objects.filter(is_deleted=False)).exists():
         customers = customers.order_by("-date_added")
         page = request.GET.get("page")
+        q = request.GET.get("q")
+
+        if q:
+            customers.filter(Q(name__istartswith=q) | Q(job__istartswith=q))
     
         paginated = Paginator(customers, 10,page)
 
@@ -73,6 +76,7 @@ def create_customer(request:HttpRequest):
     serialized = CreateCustomerSerializer(data=request.data)
     
     if serialized.is_valid():
+
         final_image = False
         name = serialized.data.get("name")
         image = serialized.data.get("image")
@@ -163,3 +167,5 @@ def update_customer(request:HttpRequest, customer_id):
         }
 
     return Response(response_data,status=status.HTTP_200_OK)
+
+
